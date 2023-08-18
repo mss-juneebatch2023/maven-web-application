@@ -1,0 +1,31 @@
+node{
+    
+    
+echo "Jenkins Home dir is: ${env.JENKINS_HOME}"
+echo "Job name is : ${env.JOB_NAME}"
+echo "Build number is: ${env.BUILD_NUMBER}"
+
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([cron(''), pollSCM('H * * * *')])])
+
+    def mavenHome=tool name:  'maven 3.9.3'
+    stage ('CheckOutCode'){
+        git branch: 'development', credentialsId: 'd78dc4ef-6bdb-4c8f-97ce-1ce45b5bc7fb', url: 'https://github.com/mss-juneebatch2023/maven-web-application.git'
+    }
+    
+    stage('Build'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    /*
+    stage('Ececute sonarQube report'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    stage('upload Artifacts into nexus'){
+        sh "${mavenHome}/bin/mvn clean deploy"
+    }
+    stage('DeployAppIntoTomcatServer'){
+    sshagent(['b811b9c4-a56e-4d23-8d96-8f28e8a109f3']) {
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.2.122:/opt/apache-tomcat-9.0.76/webapps/"
+    }
+    }
+    */
+}
